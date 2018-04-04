@@ -1,0 +1,8 @@
+BOLD_function <- function(j, x)
+  for (i in c(1:c(ncol(j)))){
+intra_sp<-dist_data[dist_data[,i] <= x,]
+intra_sp<-intra_sp[,i]
+intra_sp_max<-max(intra_sp, na.rm=TRUE)
+print(colnames(dist_data)[i])
+print(intra_sp_max)
+}
