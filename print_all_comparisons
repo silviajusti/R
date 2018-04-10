@@ -1,7 +1,6 @@
-print_interesting_data <- function(j, k) 
+list_interesting_data <- function(j) 
 for (i in c(1:c(ncol(j)))){
   for(x in c(1:c(nrow(j)))){
-    y<-(c(colnames(interesting_data)[i],row.names(interesting_data)[x],interesting_data[i,x]))
-        write.table(y, file = k)
+    print(c(interesting_data[i,x],colnames(interesting_data)[i],row.names(interesting_data)[x]))
   }
 }
