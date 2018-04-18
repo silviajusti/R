@@ -1,0 +1,11 @@
+#j is the distance matrix
+#x is the name of the sample. Has to be between ""
+#y is the title of the plot Has to be between ""
+plot_dists<-function(j,x, y) {
+    i <- subset(j, select = x)                                         
+    i_sorted <- as.matrix(i[order(i[, 1]), ])
+    plot(i_sorted, col = "blue", pch = 18, main = y,
+         xaxt = "n", xlab = "", ylab = "distance")
+    abline(h=0.02, col="red")
+    axis(1, at = 1:nrow(i_sorted), labels = row.names(i_sorted), las = 2, cex.axis = 0.4)
+     }
