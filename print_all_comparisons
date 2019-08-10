@@ -1,4 +1,4 @@
-list_interesting_data <- function(j) 
+interesting_data <- function(j) 
 for (i in c(1:c(ncol(j)))){
   for(x in c(1:c(nrow(j)))){
     print(c(interesting_data[i,x],colnames(interesting_data)[i],row.names(interesting_data)[x]))
