@@ -1,0 +1,54 @@
+get_BOLD_groups <- function(fasta_align) {
+  library(ape)
+  library(dplyr)
+  library(reshape2)
+  library(tidyverse)
+  library(data.table)
+  
+  data <- read.FASTA(fasta_align)
+  dist_data <- as.data.frame(dist.dna(data, model = "K81", 
+                                      as.matrix = TRUE, pairwise.deletion = T))
+  df<-reshape2::melt(dist_data)
+  sorted_dists<-as.data.table(df[order(df$value, decreasing = FALSE),])
+  dists_filtered<-sorted_dists[sorted_dists$value <= 0.05 ] 
+  dists_filtered2<-dists_filtered[dists_filtered$value > 0.01 ]
+  dt <- as.data.table(dists_filtered2)
+  setkey(dt, value)
+  dt[, diff := value - shift(value, fill = first(value))]
+  dt_high<-sort(sort(dt$diff,partial=(length(dt$diff)/2)),decreasing = TRUE)
+  t<-dt$diff < max(dt_high)
+  min(which(t == FALSE))
+  row_id<-(min(which(t == FALSE)))
+  dt[(row_id-1):(row_id+1),]
+  intra<-as.matrix(dist_data)
+  inter<-as.matrix(dist_data)
+  intra[intra>min((dt[(row_id-1):(row_id+1),]) %>% select (2))] <- NA; intra  
+  inter[inter<max((dt[(row_id-1):(row_id+1),]) %>% select (2))] <- NA; inter  
+  df_final <- data.frame(melt(intra), melt(inter)) %>% select(1, 3,6)
+  names(df_final) <- c("lineage", "intra_ID", "inter_ID")
+  boxplot(df_final$inter_ID ~ df_final$lineage,  ylim=c(0,0.15),  
+          ylab = "K2p pairwise distance", border= "gray31", xaxt = "n", xlab = "",
+          col="gray47", pch=21, frame=F, cex=0.5)
+  
+  boxplot(df_final$intra_ID ~ df_final$lineage, add=TRUE, ylim=c(0,0.15),  
+          ylab = "K2p pairwise distance", border= "gray61", xaxt = "n", xlab = "",
+          col="gray90", pch=21, frame=F, cex=0.5)
+  abline(h=min((dt[(row_id-1):(row_id+1),]) %>% select (2)), col="green",lty=3)
+  abline(h=max ((dt[(row_id-1):(row_id+1),]) %>% select (2)), col="red",lty=3)
+  groups<-reshape2::melt(intra)
+  write.csv(groups, file="intra_groups.csv")
+  groups_inter<-reshape2::melt(inter)
+  write.csv(groups_inter, file="inter_groups.csv")
+  dist_data<-as.dist(dist_data)
+  hc<-hclust(dist_data,"complete")
+  plot(hclust(dist_data),cex=0.25)
+  
+  
+  abline(h= round(min((dt[(row_id-1):(row_id+1),]) %>% 
+                        select (2)),digits=7), col="red")
+  final_clusters<-as.data.frame(cutree(hc, h =  round(min((dt[(row_id-1):(row_id+1),]) %>% select(2)),digits=7)))
+  names(final_clusters) <- c("lineage")
+  final_clusters
+  write.csv(final_clusters,file="final_clusters.csv")
+  
+}
