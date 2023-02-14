@@ -1,2 +1,2 @@
-# R_functions
-R functions I wrote, otherwise will be noted and credit given. 
+# R
+R codes for morphometrics, morphology and genetics data screening 
